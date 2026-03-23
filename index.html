@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<!-- saved from url=(0060)file:///C:/Users/shravyar/Downloads/postman-to-jmeter_2.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Postman to JMeter Converter</title>
+<link href="./Postman to JMeter Converter_files/css2" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0b0f19;--surface:#131929;--surface2:#1c2540;
+  --border:rgba(255,255,255,0.07);--border-h:rgba(255,255,255,0.15);
+  --accent:#00e5a0;--accent-dim:rgba(0,229,160,0.12);
+  --text:#f0f4ff;--muted:rgba(240,244,255,0.45);
+  --mono:'JetBrains Mono',monospace;--sans:'Syne',sans-serif;
+  --red:#ff4f6a;--red-dim:rgba(255,79,106,0.12);
+}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;display:flex;flex-direction:column;align-items:center}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(0,229,160,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,160,0.025) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+header{width:100%;max-width:860px;padding:56px 24px 32px;position:relative;z-index:1}
+.badge{display:inline-flex;align-items:center;gap:6px;background:var(--accent-dim);border:1px solid rgba(0,229,160,0.25);color:var(--accent);font-family:var(--mono);font-size:11px;padding:4px 12px;border-radius:100px;margin-bottom:20px;letter-spacing:.08em}
+.badge-dot{width:6px;height:6px;background:var(--accent);border-radius:50%;display:inline-block}
+h1{font-size:clamp(30px,5vw,52px);font-weight:800;line-height:1.05;letter-spacing:-.03em}
+h1 em{font-style:normal;color:var(--accent)}
+.subtitle{margin-top:12px;color:var(--muted);font-size:15px;line-height:1.65;max-width:540px}
+main{width:100%;max-width:860px;padding:0 24px 80px;position:relative;z-index:1;display:flex;flex-direction:column;gap:20px}
+#drop-zone{border:1.5px dashed var(--border-h);border-radius:16px;background:var(--surface);padding:56px 40px;display:flex;flex-direction:column;align-items:center;gap:14px;cursor:pointer;transition:all .2s;text-align:center}
+#drop-zone.drag-over{border-color:var(--accent);background:var(--accent-dim)}
+#drop-zone.has-file{border-style:solid;border-color:var(--accent);background:var(--accent-dim)}
+#drop-zone.err{border-color:var(--red);background:var(--red-dim)}
+.drop-icon{width:52px;height:52px;border-radius:12px;background:var(--surface2);border:1px solid var(--border-h);display:flex;align-items:center;justify-content:center;font-size:22px;transition:all .2s}
+#drop-zone.has-file .drop-icon{background:rgba(0,229,160,.2)}
+.drop-title{font-weight:600;font-size:17px;letter-spacing:-.01em}
+.drop-sub{font-size:12px;color:var(--muted);font-family:var(--mono)}
+#file-input{display:none}
+.btn-browse{background:transparent;border:1px solid var(--border-h);color:var(--text);font-family:var(--sans);font-size:13px;font-weight:600;padding:8px 20px;border-radius:8px;cursor:pointer;transition:all .15s}
+.btn-browse:hover{border-color:var(--accent);color:var(--accent)}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:560px){.opts{grid-template-columns:1fr}}
+.opt{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px}
+.opt-lbl{font-size:11px;font-family:var(--mono);color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px}
+.opt input{width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:13px;padding:8px 12px;border-radius:7px;outline:none;transition:border-color .15s}
+.opt input:focus{border-color:var(--accent)}
+#error-box{background:var(--red-dim);border:1px solid rgba(255,79,106,.3);border-radius:12px;padding:14px 18px;color:var(--red);font-family:var(--mono);font-size:13px;display:none;gap:10px;align-items:center}
+#error-box.show{display:flex}
+#cvt-btn{width:100%;background:var(--accent);color:#0b0f19;border:none;font-family:var(--sans);font-size:16px;font-weight:800;padding:18px;border-radius:12px;cursor:pointer;letter-spacing:-.01em;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:10px}
+#cvt-btn:hover{background:#00ffb2;transform:translateY(-1px)}
+#cvt-btn:disabled{opacity:.3;cursor:not-allowed;transform:none}
+.prog{width:100%;height:2px;background:var(--surface2);border-radius:2px;overflow:hidden;display:none}
+.prog.show{display:block}
+.prog-fill{height:100%;background:var(--accent);border-radius:2px;width:0;transition:width .35s ease}
+#result{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;display:none}
+#result.show{display:block}
+.res-head{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:10px}
+.res-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.pill{background:var(--surface2);border:1px solid var(--border);border-radius:100px;padding:4px 12px;font-family:var(--mono);font-size:11px;color:var(--muted);display:flex;align-items:center;gap:5px}
+.pill b{color:var(--accent)}
+.res-acts{display:flex;gap:8px}
+.btn-sec{background:transparent;border:1px solid var(--border-h);color:var(--muted);font-family:var(--mono);font-size:12px;padding:7px 14px;border-radius:8px;cursor:pointer;transition:all .15s}
+.btn-sec:hover{border-color:var(--accent);color:var(--accent)}
+.btn-dl{background:var(--accent-dim);border:1px solid rgba(0,229,160,.3);color:var(--accent);font-family:var(--mono);font-size:12px;font-weight:600;padding:7px 16px;border-radius:8px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:6px;text-decoration:none}
+.btn-dl:hover{background:var(--accent);color:#0b0f19}
+.sum-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px 20px;border-bottom:1px solid var(--border)}
+@media(max-width:480px){.sum-grid{grid-template-columns:1fr 1fr}}
+.sum-card{background:var(--surface2);border-radius:10px;padding:12px 14px}
+.sum-num{font-size:22px;font-weight:800;letter-spacing:-.02em;color:var(--accent)}
+.sum-lbl{font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:2px}
+#xml-pre{font-family:var(--mono);font-size:12px;line-height:1.7;color:#a8c0ff;padding:20px;max-height:380px;overflow:auto;white-space:pre;background:transparent;border:none;width:100%}
+.xt{color:#7dd3a8}.xa{color:#ffd080}.xv{color:#ff9da0}
+footer{width:100%;text-align:center;padding:24px;color:var(--muted);font-size:12px;font-family:var(--mono);position:relative;z-index:1}
+</style>
+</head>
+<body>
+<header>
+  <div class="badge"><span class="badge-dot"></span> 100% client-side · no uploads · no server</div>
+  <h1>Postman <em>→</em> JMeter</h1>
+  <p class="subtitle">Drop your Postman Collection JSON and get a ready-to-run JMeter .jmx test plan instantly. Everything runs in your browser — your data never leaves your machine.</p>
+</header>
+<main>
+  <div id="drop-zone">
+    <div class="drop-icon" id="drop-icon">📂</div>
+    <div class="drop-title" id="drop-title">Drop your Postman Collection JSON here</div>
+    <div class="drop-sub" id="drop-sub">supports Postman v2.0 and v2.1</div>
+    <input type="file" id="file-input" accept=".json,application/json">
+    <button class="btn-browse" onclick="document.getElementById(&#39;file-input&#39;).click();event.stopPropagation()">Browse file</button>
+  </div>
+  <div class="prog" id="prog"><div class="prog-fill" id="prog-fill"></div></div>
+  <div class="opts">
+    <div class="opt"><div class="opt-lbl">Virtual users (threads)</div><input type="number" id="o-threads" value="1" min="1"></div>
+    <div class="opt"><div class="opt-lbl">Ramp-up time (seconds)</div><input type="number" id="o-ramp" value="1" min="0"></div>
+    <div class="opt"><div class="opt-lbl">Loop count</div><input type="number" id="o-loops" value="1" min="1"></div>
+    <div class="opt"><div class="opt-lbl">Override base host (optional)</div><input type="text" id="o-host" placeholder="e.g. api.myapp.com"></div>
+  </div>
+  <div id="error-box">⚠ <span id="error-msg"></span></div>
+  <button id="cvt-btn" disabled="" onclick="runConvert()">⚡ Convert to JMX</button>
+  <div id="result">
+    <div class="res-head">
+      <div class="res-meta">
+        <div class="pill">requests <b id="s-req">0</b></div>
+        <div class="pill">folders <b id="s-fol">0</b></div>
+        <div class="pill">size <b id="s-size">0 KB</b></div>
+      </div>
+      <div class="res-acts">
+        <button class="btn-sec" id="copy-btn" onclick="copyXml()">Copy XML</button>
+        <a id="dl-link" class="btn-dl" href="file:///C:/Users/shravyar/Downloads/postman-to-jmeter_2.html#" download="collection.jmx">⬇ Download .jmx</a>
+      </div>
+    </div>
+    <div class="sum-grid" id="sum-grid"></div>
+    <div id="xml-pre"></div>
+  </div>
+</main>
+<footer>No files leave your browser · free to use · works with all Postman collection versions</footer>
+<script>
+var currentFile=null,currentXml='',statsObj={requests:0,folders:0};
+var dz=document.getElementById('drop-zone');
+var fi=document.getElementById('file-input');
+var btn=document.getElementById('cvt-btn');
+var eb=document.getElementById('error-box');
+var em=document.getElementById('error-msg');
+var rp=document.getElementById('result');
+var prog=document.getElementById('prog');
+var progF=document.getElementById('prog-fill');
+
+dz.addEventListener('dragover',function(e){e.preventDefault();dz.classList.add('drag-over')});
+dz.addEventListener('dragleave',function(){dz.classList.remove('drag-over')});
+dz.addEventListener('drop',function(e){e.preventDefault();dz.classList.remove('drag-over');var f=e.dataTransfer.files[0];if(f)loadFile(f)});
+dz.addEventListener('click',function(e){if(e.target.classList.contains('btn-browse'))return;fi.click()});
+fi.addEventListener('change',function(){if(fi.files[0])loadFile(fi.files[0])});
+
+function loadFile(f){
+  if(!f.name.endsWith('.json')&&f.type!=='application/json'){showErr('Please upload a .json file (Postman Collection).');return}
+  currentFile=f;
+  dz.classList.add('has-file');dz.classList.remove('err');
+  document.getElementById('drop-icon').textContent='✅';
+  document.getElementById('drop-title').textContent=f.name;
+  document.getElementById('drop-sub').textContent=(f.size/1024).toFixed(1)+' KB · click to change';
+  btn.disabled=false;hideErr();rp.classList.remove('show');
+}
+function showErr(m){em.textContent=m;eb.classList.add('show');dz.classList.add('err');dz.classList.remove('has-file');document.getElementById('drop-icon').textContent='⚠️'}
+function hideErr(){eb.classList.remove('show')}
+function showProg(p){prog.classList.add('show');progF.style.width=p+'%'}
+function hideProg(){prog.classList.remove('show');progF.style.width='0'}
+
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&apos;')}
+function sp(n,v){return '<stringProp name="'+esc(n)+'">'+esc(v)+'</stringProp>'}
+function bp(n,v){return '<boolProp name="'+esc(n)+'">'+(v?'true':'false')+'</boolProp>'}
+
+function resolveUrl(req){
+  var u=req.url||{};
+  if(typeof u==='string'){
+    try{var p=new URL(u.startsWith('http')?u:'https://'+u);return{protocol:p.protocol.replace(':',''),host:p.hostname,path:p.pathname||'/',params:[]}}
+    catch(e){return{protocol:'https',host:'localhost',path:'/',params:[]}}
+  }
+  var proto=u.protocol||'https';
+  var host=Array.isArray(u.host)?u.host.join('.'):(u.host||'localhost');
+  var pp=u.path||[];
+  var path='/'+(Array.isArray(pp)?pp.join('/'):pp);
+  var params=(u.query||[]).filter(function(q){return!q.disabled}).map(function(q){return[q.key||'',q.value||'']});
+  return{protocol:proto,host:host,path:path,params:params}
+}
+
+function resolveHeaders(req){
+  return(req.header||[]).filter(function(h){return!h.disabled}).map(function(h){return[h.key||'',h.value||'']})
+}
+
+function resolveBody(req){
+  var b=req.body||{};
+  if(!b||!b.mode)return{data:'',ct:'',isRaw:false};
+  if(b.mode==='raw'){
+    var lang=((b.options||{}).raw||{}).language||'json';
+    return{data:b.raw||'',ct:lang==='json'?'application/json':'text/plain',isRaw:true}
+  }
+  if(b.mode==='urlencoded'){
+    var d=(b.urlencoded||[]).filter(function(x){return!x.disabled}).map(function(x){return x.key+'='+(x.value||'')}).join('&');
+    return{data:d,ct:'application/x-www-form-urlencoded',isRaw:false}
+  }
+  if(b.mode==='formdata'){
+    var d=(b.formdata||[]).filter(function(x){return!x.disabled}).map(function(x){return x.key+'='+(x.value||'')}).join('&');
+    return{data:d,ct:'multipart/form-data',isRaw:false}
+  }
+  return{data:'',ct:'',isRaw:false}
+}
+
+function buildSampler(item,dh,dp){
+  var name=item.name||'Request';
+  var req=item.request||{};
+  var method=(req.method||'GET').toUpperCase();
+  var u=resolveUrl(req);
+  var headers=resolveHeaders(req);
+  var body=resolveBody(req);
+  statsObj.requests++;
+  var h=u.host||dh;var p=u.protocol||dp;
+  var argsContent='';
+  if(body.isRaw&&body.data){
+    argsContent='<elementProp name="" elementType="HTTPArgument">'+
+      bp('HTTPArgument.always_encode',false)+
+      sp('Argument.value',body.data)+
+      sp('Argument.metadata','=')+
+      '</elementProp>'
+  } else if(!body.isRaw&&u.params.length){
+    argsContent=u.params.map(function(kv){
+      return '<elementProp name="'+esc(kv[0])+'" elementType="HTTPArgument">'+
+        bp('HTTPArgument.always_encode',false)+
+        sp('Argument.value',kv[1])+
+        sp('Argument.metadata','=')+
+        bp('HTTPArgument.use_equals',true)+
+        sp('Argument.name',kv[0])+'</elementProp>'
+    }).join('')
+  }
+  var postRaw=body.isRaw&&body.data?bp('HTTPSampler.postBodyRaw',true):'';
+  var hBlock='';
+  if(headers.length){
+    var hItems=headers.map(function(kv){
+      return '<elementProp name="" elementType="Header">'+sp('Header.name',kv[0])+sp('Header.value',kv[1])+'</elementProp>'
+    }).join('');
+    hBlock='<HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">'+
+      '<collectionProp name="HeaderManager.headers">'+hItems+'</collectionProp></HeaderManager><hashTree/>'
+  }
+  return '<HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="'+esc(name)+'" enabled="true">'+
+    '<elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">'+
+    '<collectionProp name="Arguments.arguments">'+argsContent+'</collectionProp></elementProp>'+
+    postRaw+
+    sp('HTTPSampler.domain',h)+sp('HTTPSampler.port','')+sp('HTTPSampler.protocol',p)+
+    sp('HTTPSampler.contentEncoding','UTF-8')+sp('HTTPSampler.path',u.path)+
+    sp('HTTPSampler.method',method)+
+    bp('HTTPSampler.follow_redirects',true)+bp('HTTPSampler.auto_redirects',false)+
+    bp('HTTPSampler.use_keepalive',true)+bp('HTTPSampler.DO_MULTIPART_POST',false)+
+    sp('HTTPSampler.connect_timeout','')+sp('HTTPSampler.response_timeout','')+
+    '</HTTPSamplerProxy><hashTree>'+hBlock+'</hashTree>'
+}
+
+function buildItems(items,dh,dp){
+  return items.map(function(item){
+    if(item.item){
+      statsObj.folders++;
+      return '<TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="'+esc(item.name||'Folder')+'" enabled="true">'+
+        bp('TransactionController.includeTimers',false)+
+        bp('TransactionController.parent',true)+
+        '</TransactionController><hashTree>'+buildItems(item.item,dh,dp)+'</hashTree>'
+    } else if(item.request){return buildSampler(item,dh,dp)}
+    return''
+  }).join('')
+}
+
+function firstReq(items){
+  for(var i=0;i<items.length;i++){
+    if(items[i].request)return items[i].request;
+    if(items[i].item){var r=firstReq(items[i].item);if(r)return r}
+  }
+  return null
+}
+
+function convert(jsonStr,opts){
+  statsObj={requests:0,folders:0};
+  var col=JSON.parse(jsonStr);
+  var name=(col.info||{}).name||'Postman Collection';
+  var items=col.item||[];
+  var dh=opts.host||'localhost',dp='https';
+  if(!opts.host){
+    var fr=firstReq(items);
+    if(fr){var u=resolveUrl(fr);if(u.host)dh=u.host;if(u.protocol)dp=u.protocol}
+  }
+  var body=buildItems(items,dh,dp);
+  return '<?xml version="1.0" encoding="UTF-8"?>\n'+
+    '<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">\n'+
+    '  <hashTree>\n'+
+    '    <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="'+esc(name)+'" enabled="true">\n'+
+    '      '+sp('TestPlan.comments','Generated by Postman to JMeter Converter')+'\n'+
+    '      '+bp('TestPlan.functional_mode',false)+'\n'+
+    '      '+bp('TestPlan.tearDown_on_shutdown',true)+'\n'+
+    '      '+bp('TestPlan.serialize_threadgroups',false)+'\n'+
+    '      <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables"><collectionProp name="Arguments.arguments"/></elementProp>\n'+
+    '    </TestPlan>\n'+
+    '    <hashTree>\n'+
+    '      <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">'+
+    '<elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables"><collectionProp name="Arguments.arguments"/></elementProp>'+
+    sp('HTTPSampler.domain',dh)+sp('HTTPSampler.port','')+sp('HTTPSampler.protocol',dp)+sp('HTTPSampler.contentEncoding','UTF-8')+
+    '</ConfigTestElement><hashTree/>\n'+
+    '      <CookieManager guiclass="CookiePanel" testclass="CookieManager" testname="HTTP Cookie Manager" enabled="true">'+
+    '<collectionProp name="CookieManager.cookies"/>'+bp('CookieManager.clearEachIteration',false)+'</CookieManager><hashTree/>\n'+
+    '      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="'+esc(name)+'" enabled="true">'+
+    sp('ThreadGroup.on_sample_error','continue')+
+    '<elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">'+
+    bp('LoopController.continue_forever',false)+sp('LoopController.loops',String(opts.loops))+'</elementProp>'+
+    sp('ThreadGroup.num_threads',String(opts.threads))+sp('ThreadGroup.ramp_time',String(opts.ramp))+
+    bp('ThreadGroup.scheduler',false)+sp('ThreadGroup.duration','')+sp('ThreadGroup.delay','')+
+    bp('ThreadGroup.same_user_on_next_iteration',true)+
+    '</ThreadGroup>\n'+
+    '      <hashTree>\n'+body+'\n'+
+    '        <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">'+
+    bp('ResultCollector.error_logging',false)+'<objProp><name>saveConfig</name><value class="SampleSaveConfiguration"><time>true</time><latency>true</latency><timestamp>true</timestamp><success>true</success><label>true</label><code>true</code><message>true</message><threadName>true</threadName><dataType>true</dataType><encoding>false</encoding><assertions>true</assertions><subresults>true</subresults><responseData>false</responseData><samplerData>false</samplerData><xml>false</xml><fieldNames>true</fieldNames><responseHeaders>false</responseHeaders><requestHeaders>false</requestHeaders><responseDataOnError>false</responseDataOnError><saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage><bytes>true</bytes><sentBytes>true</sentBytes><url>true</url><threadCounts>true</threadCounts><idleTime>true</idleTime><connectTime>true</connectTime></value></objProp></ResultCollector><hashTree/>\n'+
+    '        <ResultCollector guiclass="StatVisualizer" testclass="ResultCollector" testname="Aggregate Report" enabled="true">'+
+    bp('ResultCollector.error_logging',false)+'<objProp><name>saveConfig</name><value class="SampleSaveConfiguration"><time>true</time><latency>true</latency><timestamp>true</timestamp><success>true</success><label>true</label><code>true</code><message>true</message><threadName>true</threadName><dataType>true</dataType><encoding>false</encoding><assertions>true</assertions><subresults>true</subresults><responseData>false</responseData><samplerData>false</samplerData><xml>false</xml><fieldNames>true</fieldNames><responseHeaders>false</responseHeaders><requestHeaders>false</requestHeaders><responseDataOnError>false</responseDataOnError><saveAssertionResultsFailureMessage>true</saveAssertionResultsFailureMessage><bytes>true</bytes><sentBytes>true</sentBytes><url>true</url><threadCounts>true</threadCounts><idleTime>true</idleTime><connectTime>true</connectTime></value></objProp></ResultCollector><hashTree/>\n'+
+    '      </hashTree>\n'+
+    '    </hashTree>\n'+
+    '  </hashTree>\n'+
+    '</jmeterTestPlan>'
+}
+
+function hlXml(xml){
+  return xml
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/(&lt;\/?)([\w:.-]+)/g,'<span class="xt">$1$2</span>')
+    .replace(/ ([\w:.-]+)=&quot;/g,' <span class="xa">$1</span>=<span class="xv">&quot;')
+    .replace(/&quot;( |\/&gt;|&gt;)/g,'&quot;</span>$1')
+}
+
+function runConvert(){
+  if(!currentFile)return;
+  hideErr();showProg(20);
+  var reader=new FileReader();
+  reader.onload=function(e){
+    showProg(60);
+    try{
+      var opts={
+        threads:parseInt(document.getElementById('o-threads').value)||1,
+        ramp:parseInt(document.getElementById('o-ramp').value)||1,
+        loops:parseInt(document.getElementById('o-loops').value)||1,
+        host:document.getElementById('o-host').value.trim()
+      };
+      currentXml=convert(e.target.result,opts);
+      showProg(90);
+      document.getElementById('s-req').textContent=statsObj.requests;
+      document.getElementById('s-fol').textContent=statsObj.folders;
+      document.getElementById('s-size').textContent=(currentXml.length/1024).toFixed(1)+' KB';
+      document.getElementById('sum-grid').innerHTML=
+        '<div class="sum-card"><div class="sum-num">'+statsObj.requests+'</div><div class="sum-lbl">HTTP Samplers</div></div>'+
+        '<div class="sum-card"><div class="sum-num">'+statsObj.folders+'</div><div class="sum-lbl">Transactions</div></div>'+
+        '<div class="sum-card"><div class="sum-num">'+opts.threads+'</div><div class="sum-lbl">Virtual Users</div></div>';
+      var lines=currentXml.split('\n').slice(0,120);
+      var preview=lines.join('\n')+(currentXml.split('\n').length>120?'\n... (preview truncated)':'');
+      document.getElementById('xml-pre').innerHTML=hlXml(preview);
+      var blob=new Blob([currentXml],{type:'application/xml'});
+      var url=URL.createObjectURL(blob);
+      var fname=(currentFile.name.replace(/\.json$/i,'')||'collection')+'.jmx';
+      var dl=document.getElementById('dl-link');
+      dl.href=url;dl.download=fname;
+      rp.classList.add('show');
+      rp.scrollIntoView({behavior:'smooth',block:'nearest'});
+      showProg(100);setTimeout(hideProg,600);
+    }catch(err){hideProg();showErr('Failed to parse: '+err.message)}
+  };
+  reader.onerror=function(){hideProg();showErr('Could not read file.')};
+  reader.readAsText(currentFile);
+}
+
+async function copyXml(){
+  if(!currentXml)return;
+  await navigator.clipboard.writeText(currentXml);
+  var b=document.getElementById('copy-btn');
+  b.textContent='Copied!';
+  setTimeout(function(){b.textContent='Copy XML'},1800);
+}
+</script>
+
+
+</body></html>
